@@ -9,6 +9,8 @@ const multer = require("multer");
 const path = require("path");
 app.use("/public", express.static("public"));
 
+app.use("/public", express.static(path.join(__dirname, "public")));
+
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -59,6 +61,14 @@ app.post("/api/addservice", upload.single("image"), (req, res) => {
   );
 });
 
+app.get("/api/getservices", (req, res) => {
+  const sql = "SELECT * FROM add_services";
+  con.query(sql, (err, result) => {
+    if (err) return res.status(500).json({ error: "DB error" });
+    res.send(result);
+  });
+});
+
 app.post("/api/insert", (req, resp) => {
   var name = req.body.name;
   var email = req.body.email;
@@ -87,6 +97,17 @@ app.post("/api/verify", (req, resp) => {
     } else {
       return resp.json({ message: "wrong email id or password" });
     }
+  });
+});
+
+app.get("/api/getservices", (req, res) => {
+  const query = "SELECT * FROM add_services";
+  con.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching services:", err);
+      return res.status(500).json({ error: "Failed to fetch services" });
+    }
+    res.json(result);
   });
 });
 
