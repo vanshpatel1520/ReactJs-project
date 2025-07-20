@@ -1,71 +1,146 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("mydata"));
+  const [hoveredLink, setHoveredLink] = useState(null);
+
+  function Logout() {
+    localStorage.clear();
+    navigate("/");
+  }
+
+  // Style for nav links
+  const linkStyle = (index) => ({
+    color: "white",
+    padding: "8px 12px",
+    borderRadius: "5px",
+    textDecoration: "none",
+    backgroundColor: hoveredLink === index ? "#5b5b5b" : "transparent",
+    transition: "background-color 0.3s ease",
+  });
+
   return (
     <>
-      <header class="header_section">
-        <div class="header_top">
-          <div class="container-fluid">
-            <div class="contact_link-container">
-              <a href class="contact_link1">
-                <i class="fa fa-map-marker" aria-hidden="true"></i>
-                <span>Lorem ipsum dolor sit amet,</span>
-              </a>
-              <a href class="contact_link2">
-                <i class="fa fa-phone" aria-hidden="true"></i>
-                <span>Call : +01 1234567890</span>
-              </a>
-              <a href class="contact_link3">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-                <span>demo@gmail.com</span>
-              </a>
-            </div>
+      <header
+        className="header_section"
+        style={{ fontFamily: "Arial, sans-serif" }}
+      >
+        {/* Top Contact Bar */}
+        <div
+          className="header_top"
+          style={{
+            backgroundColor: "#081d45",
+            color: "white",
+            padding: "10px 0",
+          }}
+        >
+          <div className="container-fluid d-flex justify-content-between px-5">
+            <span>
+              <i
+                className="fa fa-map-marker mr-2 text-success"
+                aria-hidden="true"
+              ></i>
+              Lorem ipsum dolor sit amet,
+            </span>
+            <span>
+              <i
+                className="fa fa-phone mr-2 text-success"
+                aria-hidden="true"
+              ></i>
+              Call : +01 1234567890
+            </span>
+            <span>
+              <i
+                className="fa fa-envelope mr-2 text-success"
+                aria-hidden="true"
+              ></i>
+              demo@gmail.com
+            </span>
           </div>
         </div>
-        <div class="header_bottom">
-          <div class="container-fluid">
-            <nav class="navbar navbar-expand-lg custom_nav-container">
-              <a class="navbar-brand" href="index.html">
-                <span>Viseas</span>
-              </a>
-              <button
-                class="navbar-toggler"
-                type="button"
-                data-toggle="collapse"
-                data-target="#navbarSupportedContent"
+
+        {/* Bottom Navigation */}
+        <div className="header_bottom" style={{ backgroundColor: "#1b1b1b" }}>
+          <div className="container-fluid">
+            <nav className="navbar navbar-expand-lg custom_nav-container">
+              {/* Logo */}
+              <Link
+                className="navbar-brand text-white font-weight-bold"
+                to="/"
+                style={{ fontSize: "28px" }}
               >
-                <span class></span>
-              </button>
-              <div
-                class="collapse navbar-collapse ml-auto"
-                id="navbarSupportedContent"
-              >
-                <ul class="navbar-nav">
-                  <li class="nav-item active">
-                    <a class="nav-link" href="/">
-                      Home <span class="sr-only">(current)</span>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="/service">
-                      Services
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="/about">
-                      About
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="/countries">
-                      Countries
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="/contact">
-                      Contact us
-                    </a>
-                  </li>
+                Viseas
+              </Link>
+
+              {/* Nav links */}
+              <div className="collapse navbar-collapse ml-auto">
+                <ul
+                  className="navbar-nav ml-auto d-flex align-items-center"
+                  style={{ listStyle: "none", margin: 0, padding: 0 }}
+                >
+                  {["Home", "Services", "About", "Countries", "Contact Us"].map(
+                    (label, idx) => {
+                      const paths = [
+                        "/",
+                        "/service",
+                        "/about",
+                        "/countries",
+                        "/contact",
+                      ];
+                      return (
+                        <li className="nav-item" key={label}>
+                          <Link
+                            to={paths[idx]}
+                            className="nav-link"
+                            onMouseEnter={() => setHoveredLink(idx)}
+                            onMouseLeave={() => setHoveredLink(null)}
+                            style={linkStyle(idx)}
+                          >
+                            {label}
+                          </Link>
+                        </li>
+                      );
+                    }
+                  )}
+
+                  {/* User options */}
+                  {user ? (
+                    <>
+                      <li className="nav-item">
+                        <span
+                          className="nav-link"
+                          style={{ ...linkStyle(5), cursor: "default" }}
+                        >
+                          Welcome, {user.sname}
+                        </span>
+                      </li>
+                      <li className="nav-item">
+                        <span
+                          className="nav-link"
+                          onClick={Logout}
+                          onMouseEnter={() => setHoveredLink(6)}
+                          onMouseLeave={() => setHoveredLink(null)}
+                          style={{ ...linkStyle(6), cursor: "pointer" }}
+                        >
+                          Logout
+                        </span>
+                      </li>
+                    </>
+                  ) : (
+                    <li className="nav-item">
+                      <Link
+                        to="/register"
+                        className="nav-link"
+                        onMouseEnter={() => setHoveredLink(7)}
+                        onMouseLeave={() => setHoveredLink(null)}
+                        style={linkStyle(7)}
+                      >
+                        Register
+                      </Link>
+                    </li>
+                  )}
                 </ul>
               </div>
             </nav>

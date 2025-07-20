@@ -7,6 +7,8 @@ import About from "./pages/about";
 import Home from "./pages/Home";
 import Countries from "./pages/conturies";
 import Contact from "./pages/contact";
+import Register from "./pages/register";
+import Login from "./pages/login";
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
           <Route exact path="/about" element={<About />} />
           <Route exact path="/countries" element={<Countries />} />
           <Route exact path="/contact" element={<Contact />} />
+          <Route exact path="/register" element={<Register />} />
+          <Route exact path="/login" element={<Login />} />
         </Routes>
       </Router>
     </>
