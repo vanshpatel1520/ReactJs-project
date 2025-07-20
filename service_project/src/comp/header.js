@@ -80,30 +80,36 @@ const Header = () => {
                   className="navbar-nav ml-auto d-flex align-items-center"
                   style={{ listStyle: "none", margin: 0, padding: 0 }}
                 >
-                  {["Home", "Services", "About", "Countries", "Contact Us"].map(
-                    (label, idx) => {
-                      const paths = [
-                        "/",
-                        "/service",
-                        "/about",
-                        "/countries",
-                        "/contact",
-                      ];
-                      return (
-                        <li className="nav-item" key={label}>
-                          <Link
-                            to={paths[idx]}
-                            className="nav-link"
-                            onMouseEnter={() => setHoveredLink(idx)}
-                            onMouseLeave={() => setHoveredLink(null)}
-                            style={linkStyle(idx)}
-                          >
-                            {label}
-                          </Link>
-                        </li>
-                      );
-                    }
-                  )}
+                  {[
+                    "Home",
+                    "Services",
+                    "AddServices",
+                    "About",
+                    "Countries",
+                    "Contact Us",
+                  ].map((label, idx) => {
+                    const paths = [
+                      "/",
+                      "/service",
+                      "/addservice",
+                      "/about",
+                      "/countries",
+                      "/contact",
+                    ];
+                    return (
+                      <li className="nav-item" key={label}>
+                        <Link
+                          to={paths[idx]}
+                          className="nav-link"
+                          onMouseEnter={() => setHoveredLink(idx)}
+                          onMouseLeave={() => setHoveredLink(null)}
+                          style={linkStyle(idx)}
+                        >
+                          {label}
+                        </Link>
+                      </li>
+                    );
+                  })}
 
                   {/* User options */}
                   {user ? (

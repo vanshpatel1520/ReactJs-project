@@ -9,6 +9,7 @@ import Countries from "./pages/conturies";
 import Contact from "./pages/contact";
 import Register from "./pages/register";
 import Login from "./pages/login";
+import AddServices from "./pages/addservices";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route exact path="/contact" element={<Contact />} />
           <Route exact path="/register" element={<Register />} />
           <Route exact path="/login" element={<Login />} />
+          <Route exact path="/addservice" element={<AddServices />} />
         </Routes>
       </Router>
     </>
