@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Axios from "axios";
+import Swal from "sweetalert2";
 
 function Services() {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:1520/api/getservices")
+    Axios.get("http://localhost:1520/api/getservices")
       .then((response) => {
         setServices(response.data);
       })
@@ -14,6 +14,60 @@ function Services() {
         console.error("Error fetching services:", error);
       });
   }, []);
+
+  function bookservice(id, price) {
+    var merchant_order_id = "123";
+
+    const options = {
+      key: "rzp_test_60v2W0km5tB9fH",
+      amount: price * 100,
+      currency: "INR",
+      name: "IT",
+      description: "Booking for service",
+      prefill: {
+        name: "Taanya Patel",
+        email: "taanya@gmail.com",
+        contact: 9898984141,
+      },
+      notes: {
+        soolegal_order_id: "123",
+      },
+      handler: function (response) {
+        console.log("Payment successful:", response);
+        Axios.post("http://localhost:1520/api/booking", {
+          sid: id,
+          price: price,
+          email: "taanya@gmail.com",
+        })
+          .then((response) => {
+            alert(response.data.message || "Booking successful");
+            window.location = "/Login";
+          })
+          .catch((err) => {
+            console.error("Booking error:", err);
+            alert("Booking failed after payment.");
+          });
+
+        Swal.fire({
+          title: "Success!",
+          text: "Booking completed!",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+      },
+      modal: {
+        ondismiss: function () {
+          alert("Payment popup closed without completing payment.");
+        },
+      },
+      theme: {
+        color: "#528FF0",
+      },
+    };
+
+    const rzp1 = new window.Razorpay(options);
+    rzp1.open();
+  }
 
   const styles = {
     section: {
@@ -107,9 +161,12 @@ function Services() {
                     <strong>Price:</strong> ₹{service.price} <br />
                     <strong>City:</strong> {service.city}
                   </div>
-                  <a href="#" style={styles.readMore}>
-                    Apply
-                  </a>
+                  <button
+                    type="button"
+                    onClick={() => bookservice(service.id, service.price)}
+                  >
+                    Book
+                  </button>
                 </div>
               </div>
             ))}

@@ -111,4 +111,64 @@ app.get("/api/getservices", (req, res) => {
   });
 });
 
+app.post("/api/booking", (req, resp) => {
+  var sid = req.body.sid;
+  var price = req.body.price;
+  var userEmail = req.body.email;
+
+  const query = "INSERT INTO booking_tbl(sid, price) VALUES (?, ?)";
+
+  con.query(query, [sid, price], (err, result) => {
+    if (err) {
+      console.error("Error while inserting booking:", err);
+      resp.json("");
+    } else {
+      console.log("Booking inserted:", result);
+
+      const Smtp = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: "mycity01012024@gmail.com",
+          pass: "sywnhxhhcezzlmvj",
+        },
+      });
+
+      const message = {
+        from: "ITM SLS",
+        to: "vanshpatel3220@gmail.com",
+        subject: "Booking Confirmation",
+        html: `
+                    <p>Hello,</p>
+                    <p>Your booking for Service ID <strong>${sid}</strong> has been confirmed.</p>
+                    <p>Amount Paid: <strong>₹${price}</strong></p>
+                    <p>Thank you for booking with us!</p>
+                `,
+      };
+
+      Smtp.sendMail(message, (err, info) => {
+        if (err) {
+          console.error("Email sending error:", err);
+          resp.json("");
+        } else {
+          console.log("Confirmation email sent:", info.response);
+          resp.json("");
+        }
+      });
+    }
+  });
+});
+
+//for verify email registered!
+app.post("/api/verifyemail", (req, resp) => {
+  var email = req.body.email;
+  const query = "select * from user where email=?";
+  con.query(query, [email], (err, result) => {
+    if (result.length > 0) {
+      resp.send({ message: "email already registered!" });
+    }
+  });
+});
+
 app.listen(1520, () => console.log("Server running at http://localhost:1520"));

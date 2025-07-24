@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
@@ -8,24 +8,52 @@ function Register() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    var name = document.getElementById("name").value;
-    var email = document.getElementById("email").value;
-    var mobile = document.getElementById("mobile").value;
-    var password = document.getElementById("password").value;
-    // alert(email);
-    Axios.post("http://localhost:1520/api/insert", {
-      name: name,
+  const [emailExists, setEmailExists] = useState(false);
+  const email = watch("email");
+  const password = watch("password");
+
+  const checkEmail = () => {
+    if (!email) return;
+    Axios.post("http://localhost:1520/api/verifyemail", {
       email: email,
-      mobile: mobile,
-      password: password,
+    }).then((res) => {
+      if (res.data.message === "email already registered!") {
+        setEmailExists(true);
+        Swal.fire({
+          title: "Error",
+          text: "This email is already registered!",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      } else {
+        setEmailExists(false);
+      }
+    });
+  };
+
+  const onSubmit = (data) => {
+    if (emailExists) {
+      Swal.fire({
+        title: "Error",
+        text: "Cannot register with this email. Try another one.",
+        icon: "error",
+      });
+      return;
+    }
+
+    Axios.post("http://localhost:1520/api/insert", {
+      name: data.name,
+      email: data.email,
+      mobile: data.mobile,
+      password: data.password,
     }).then(() => {
       Swal.fire({
         title: "Success!",
-        text: "User Registered!!!.",
+        text: "User Registered!!!",
         icon: "success",
         confirmButtonText: "OK",
       }).then(() => {
@@ -45,55 +73,106 @@ function Register() {
             <h2>Register</h2>
             <p>Create your account below</p>
           </div>
+
           <form className="signin-form" onSubmit={handleSubmit(onSubmit)}>
             <div className="row">
               <div className="col-md-9 mx-auto">
                 <div className="form_container">
-                  <div className="form-row">
-                    <div className="form-group col-md-6">
-                      <input
-                        id="name"
-                        type="text"
-                        className="form-control"
-                        placeholder="Full Name"
-                      />
-                    </div>
-                    <div className="form-group col-md-6">
-                      <input
-                        id="email"
-                        type="email"
-                        className="form-control"
-                        placeholder="Email"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="form-group col-md-6">
-                      <input
-                        id="mobile"
-                        type="text"
-                        className="form-control"
-                        placeholder="Phone Number"
-                      />
-                    </div>
-                    <div className="form-group col-md-6">
-                      <input
-                        id="password"
-                        type="password"
-                        className="form-control"
-                        placeholder="Password"
-                      />
-                    </div>
-                  </div>
-
+                  {/* Name */}
                   <div className="form-group">
                     <input
-                      id="confirm_password"
+                      type="text"
+                      className="form-control"
+                      placeholder="Full Name"
+                      {...register("name", {
+                        required: "Name is required",
+                        pattern: {
+                          value: /^[A-Za-z\s]+$/,
+                          message: "Name must contain only letters and spaces",
+                        },
+                      })}
+                    />
+                    {errors.name && (
+                      <p className="text-danger">{errors.name.message}</p>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div className="form-group">
+                    <input
+                      type="email"
+                      className="form-control"
+                      placeholder="Email"
+                      {...register("email", {
+                        required: "Email is required",
+                        pattern: {
+                          value:
+                            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                          message: "Invalid email format",
+                        },
+                      })}
+                      onBlur={checkEmail}
+                    />
+                    {errors.email && (
+                      <p className="text-danger">{errors.email.message}</p>
+                    )}
+                  </div>
+
+                  {/* Mobile */}
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Phone Number"
+                      {...register("mobile", {
+                        required: "Phone number is required",
+                        pattern: {
+                          value: /^\d{10}$/,
+                          message: "Phone number must be 10 digits",
+                        },
+                      })}
+                    />
+                    {errors.mobile && (
+                      <p className="text-danger">{errors.mobile.message}</p>
+                    )}
+                  </div>
+
+                  {/* Password */}
+                  <div className="form-group">
+                    <input
+                      type="password"
+                      className="form-control"
+                      placeholder="Password"
+                      {...register("password", {
+                        required: "Password is required",
+                        minLength: {
+                          value: 8,
+                          message: "Password must be at least 8 characters",
+                        },
+                      })}
+                    />
+                    {errors.password && (
+                      <p className="text-danger">{errors.password.message}</p>
+                    )}
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div className="form-group">
+                    <input
                       type="password"
                       className="form-control"
                       placeholder="Confirm Password"
+                      {...register("confirmPassword", {
+                        required: "Please confirm your password",
+                        validate: (value) =>
+                          value === password || "Passwords do not match",
+                      })}
                     />
+                    {errors.confirmPassword && (
+                      <p className="text-danger">
+                        {errors.confirmPassword.message}
+                      </p>
+                    )}
                   </div>
 
                   <div className="btn-box">
@@ -117,10 +196,7 @@ function Register() {
         </div>
       </section>
 
-      {/* Footer Section */}
-      <footer className="container-fluid footer_section">
-        {/* Optional footer content */}
-      </footer>
+      <footer className="container-fluid footer_section">{/* Footer */}</footer>
     </div>
   );
 }
